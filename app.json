@@ -1,48 +1,57 @@
 {
   "expo": {
-    "name": "PetFinderApp",
-    "slug": "PetFinderApp",
+    "name": "Pet Finder",
+    "slug": "pet-finder-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "petfinderapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.petfinder.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrar mascotas perdidas cerca de ti.",
+        "NSCameraUsageDescription": "Necesitamos acceso a la cámara para tomar fotos de mascotas.",
+        "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tus fotos para seleccionar imágenes."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "package": "com.petfinder.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "plugins": [
       "expo-router",
       [
-        "expo-splash-screen",
+        "expo-location",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "locationAlwaysAndWhenInUsePermission": "Necesitamos tu ubicación para mostrar mascotas perdidas cerca de ti."
         }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Necesitamos acceso a tus fotos para seleccionar imágenes.",
+          "cameraPermission": "Necesitamos acceso a la cámara para tomar fotos de mascotas."
+        }
+      ],
+      "expo-secure-store",
+      "expo-web-browser"
+    ]
   }
 }

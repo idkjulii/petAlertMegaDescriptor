@@ -1,50 +1,163 @@
-# Welcome to your Expo app 👋
+# 🐾 Pet Finder App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Una aplicación móvil para ayudar a encontrar mascotas perdidas usando React Native y Expo.
 
-## Get started
+## 🚀 Inicio Rápido
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### 1. Clonar el repositorio
 ```bash
-npm run reset-project
+git clone <repository-url>
+cd PetFinderApp
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Instalar dependencias
+```bash
+npm install
+```
 
-## Learn more
+### 3. Configurar Supabase
+**⚠️ IMPORTANTE**: Antes de ejecutar la aplicación, debes configurar Supabase:
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Lee la guía completa en [CONFIGURACION-SUPABASE.md](./CONFIGURACION-SUPABASE.md)
+2. Crea un archivo `.env` en la raíz del proyecto:
+   ```env
+   EXPO_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima-aqui
+   ```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 4. Iniciar el servidor de desarrollo
+```bash
+npm start
+```
 
-## Join the community
+### 5. Ejecutar en tu dispositivo
+- Instala la app [Expo Go](https://expo.dev/go) en tu teléfono
+- Escanea el código QR que aparece en la terminal o navegador
+- La app se cargará en tu dispositivo
 
-Join our community of developers creating universal apps.
+## 📱 Características
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- 🔐 **Autenticación de usuarios** con Supabase
+- 📍 **Reportes basados en ubicación** de mascotas perdidas/encontradas
+- 🗺️ **Mapa interactivo** con marcadores personalizados
+- 💬 **Mensajería en tiempo real** entre usuarios
+- 📸 **Subida de fotos** para reportes
+- 🔔 **Notificaciones** de reportes cercanos
+- 📱 **Multiplataforma** (iOS & Android)
+
+## 🏗️ Estructura del Proyecto
+
+```
+PetFinderApp/
+├── app/                    # Páginas de Expo Router
+│   ├── (auth)/            # Pantallas de autenticación
+│   │   ├── login.jsx      # Inicio de sesión
+│   │   └── register.jsx   # Registro
+│   ├── (tabs)/            # Pestañas principales
+│   │   ├── index.jsx      # Pantalla principal (mapa)
+│   │   ├── reports.jsx    # Mis reportes
+│   │   ├── pets.jsx       # Mis mascotas
+│   │   ├── messages.jsx   # Mensajes
+│   │   └── profile.jsx    # Perfil
+│   ├── report/            # Crear reportes
+│   └── _layout.jsx        # Layout raíz
+├── src/                   # Código fuente
+│   ├── components/        # Componentes reutilizables
+│   │   ├── Map/          # Componentes del mapa
+│   │   └── UI/           # Componentes de interfaz
+│   ├── services/         # Servicios de API
+│   │   ├── supabase.js   # Cliente de Supabase
+│   │   └── location.js   # Servicios de ubicación
+│   ├── stores/           # Gestión de estado
+│   │   └── authStore.js  # Store de autenticación
+│   └── config/           # Configuración
+│       └── env.js        # Variables de entorno
+├── assets/               # Imágenes y archivos estáticos
+└── components/           # Componentes de plantilla de Expo
+```
+
+## 🛠️ Stack Tecnológico
+
+- **Framework**: React Native con Expo
+- **Navegación**: Expo Router
+- **Base de datos**: Supabase (PostgreSQL)
+- **Mapas**: React Native Maps
+- **UI**: React Native Paper
+- **Estado**: Zustand
+- **Ubicación**: Expo Location
+- **Imágenes**: Expo Image Picker
+
+## 🔧 Desarrollo
+
+### Prerrequisitos
+
+- Node.js (v18 o superior)
+- npm o yarn
+- Expo CLI
+- Simulador iOS o Emulador Android (opcional)
+- Dispositivo físico con la app Expo Go
+
+### Scripts Disponibles
+
+- `npm start` - Iniciar servidor de desarrollo
+- `npm run android` - Ejecutar en Android
+- `npm run ios` - Ejecutar en iOS
+- `npm run web` - Ejecutar en web
+- `npm run clean` - Limpiar caché y reiniciar
+- `npm run lint` - Ejecutar ESLint
+
+### Variables de Entorno
+
+Crea un archivo `.env` en el directorio raíz:
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima-aqui
+EXPO_PUBLIC_APP_NAME=Pet Finder
+EXPO_PUBLIC_APP_VERSION=1.0.0
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=tu-clave-de-google-maps
+```
+
+## 🐛 Solución de Problemas
+
+### Error "Configuración de Supabase no válida"
+- Verifica que el archivo `.env` existe y tiene las credenciales correctas
+- Asegúrate de que las variables empiecen con `EXPO_PUBLIC_`
+- Reinicia la aplicación después de crear el archivo `.env`
+
+### Error de conexión a la base de datos
+- Verifica que las credenciales de Supabase sean correctas
+- Asegúrate de que el proyecto de Supabase esté activo
+- Verifica tu conexión a internet
+
+### Error de ubicación
+- Verifica que la aplicación tenga permisos de ubicación
+- En el simulador, ve a Device > Location y configura una ubicación
+
+### Error de Metro/Bundle
+- Ejecuta `npm run clean` para limpiar la caché
+- Reinicia el servidor de desarrollo
+
+## 📖 Documentación Adicional
+
+- [Configuración de Supabase](./CONFIGURACION-SUPABASE.md) - Guía completa para configurar la base de datos
+- [Guía de Testing](./README-TESTING.md) - Información sobre pruebas
+
+## 🤝 Contribuir
+
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-caracteristica`)
+3. Commit tus cambios (`git commit -m 'Agrega nueva característica'`)
+4. Push a la rama (`git push origin feature/nueva-caracteristica`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## 🙏 Agradecimientos
+
+- [Expo](https://expo.dev) por el framework de desarrollo
+- [Supabase](https://supabase.com) por la plataforma de backend
+- [React Native Paper](https://reactnativepaper.com) por los componentes de UI
+- La comunidad de React Native por el apoyo y recursos
