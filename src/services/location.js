@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 
-export const requestLocationPermission = async () => {
+const requestLocationPermission = async () => {
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
     
@@ -18,7 +18,7 @@ export const requestLocationPermission = async () => {
   }
 };
 
-export const checkLocationPermission = async () => {
+const checkLocationPermission = async () => {
   try {
     const { status } = await Location.getForegroundPermissionsAsync();
     return status === 'granted';
@@ -28,7 +28,7 @@ export const checkLocationPermission = async () => {
   }
 };
 
-export const getCurrentLocation = async () => {
+const getCurrentLocation = async () => {
   try {
     const hasPermission = await checkLocationPermission();
     if (!hasPermission) {
@@ -59,7 +59,7 @@ export const getCurrentLocation = async () => {
   }
 };
 
-export const reverseGeocode = async (latitude, longitude) => {
+const reverseGeocode = async (latitude, longitude) => {
   try {
     // Crear un timeout personalizado para evitar el DEADLINE_EXCEEDED
     const timeoutPromise = new Promise((_, reject) => {
@@ -109,7 +109,7 @@ export const reverseGeocode = async (latitude, longitude) => {
   }
 };
 
-export const formatAddress = (addressObject) => {
+const formatAddress = (addressObject) => {
   const parts = [];
   
   if (addressObject.street) parts.push(addressObject.street);
@@ -121,7 +121,7 @@ export const formatAddress = (addressObject) => {
   return parts.join(', ');
 };
 
-export const calculateDistance = (lat1, lon1, lat2, lon2) => {
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
@@ -136,14 +136,14 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
-export const formatDistance = (meters) => {
+const formatDistance = (meters) => {
   if (meters < 1000) {
     return `${Math.round(meters)}m`;
   }
   return `${(meters / 1000).toFixed(1)}km`;
 };
 
-export const getMapRegion = (latitude, longitude, latitudeDelta = 0.05, longitudeDelta = 0.05) => {
+const getMapRegion = (latitude, longitude, latitudeDelta = 0.05, longitudeDelta = 0.05) => {
   return {
     latitude,
     longitude,
@@ -152,14 +152,7 @@ export const getMapRegion = (latitude, longitude, latitudeDelta = 0.05, longitud
   };
 };
 
-export default {
-  requestLocationPermission,
-  checkLocationPermission,
-  getCurrentLocation,
-  reverseGeocode,
-  formatAddress,
-  calculateDistance,
-  formatDistance,
-  getMapRegion,
+export {
+    calculateDistance, checkLocationPermission, formatAddress, formatDistance, getCurrentLocation, getMapRegion, requestLocationPermission, reverseGeocode
 };
 

@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "Pet Finder",
-    "slug": "pet-finder-app",
+    "name": "PetAlert",
+    "slug": "petalert",
+    "scheme": "petalert",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -51,7 +52,8 @@
         }
       ],
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-font"
     ]
   }
 }

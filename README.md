@@ -25,12 +25,32 @@ npm install
    EXPO_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima-aqui
    ```
 
-### 4. Iniciar el servidor de desarrollo
+### 4. Configurar pgvector para búsqueda por similitud visual
+Para habilitar la funcionalidad de búsqueda por similitud visual con CLIP, ejecuta esta migración en el SQL Editor de Supabase:
+
+```sql
+-- Habilitar pgvector (no falla si ya existe)
+create extension if not exists vector;
+
+-- Agregar columna vector(512) para embeddings CLIP
+alter table public.reports
+  add column if not exists embedding vector(512);
+
+-- Índice IVF por cosine (para kNN rápido)
+create index if not exists idx_reports_embedding_ivf
+  on public.reports using ivfflat (embedding vector_cosine_ops)
+  with (lists = 100);
+
+-- Seguridad básica: solo el servicio escribe el embedding
+revoke update (embedding) on public.reports from anon, authenticated;
+```
+
+### 5. Iniciar el servidor de desarrollo
 ```bash
 npm start
 ```
 
-### 5. Ejecutar en tu dispositivo
+### 6. Ejecutar en tu dispositivo
 - Instala la app [Expo Go](https://expo.dev/go) en tu teléfono
 - Escanea el código QR que aparece en la terminal o navegador
 - La app se cargará en tu dispositivo

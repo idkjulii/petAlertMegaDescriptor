@@ -33,7 +33,10 @@ const CustomMapView = ({
 
     if (coordinates.length === 0) return;
 
-    console.log('📍 Ajustando mapa a coordenadas:', coordinates);
+    // Solo loggear en modo debug
+    if (__DEV__) {
+      console.log('📍 Ajustando mapa a coordenadas:', coordinates);
+    }
     
     // Esperar un poco más para que el mapa esté completamente renderizado
     const timer = setTimeout(() => {
@@ -168,11 +171,17 @@ const CustomMapView = ({
           const isLost = report.type === 'lost';
           const markerColor = isLost ? '#FF3B30' : '#34C759';
           
-          console.log('🗺️ Renderizando marcador para reporte:', {
-            id: report.id,
-            type: report.type,
-            coordinates: { latitude, longitude }
-          });
+          // Solo loggear en modo debug o cuando hay cambios significativos
+          if (__DEV__ && index === 0) {
+            console.log('🗺️ Renderizando marcadores para reportes:', {
+              total: reports.length,
+              sample: {
+                id: report.id,
+                type: report.type,
+                coordinates: { latitude, longitude }
+              }
+            });
+          }
 
           return (
             <Marker

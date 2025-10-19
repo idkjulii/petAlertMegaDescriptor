@@ -1,8 +1,8 @@
-import * as FileSystem from 'expo-file-system/legacy'; // Importa la API legacy
+import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { supabase } from './supabase';
+import { supabase } from './supabase.js';
 
-export const compressImage = async (uri, quality = 0.7) => {
+const compressImage = async (uri, quality = 0.7) => {
   try {
     const manipulatedImage = await ImageManipulator.manipulateAsync(
       uri,
@@ -20,7 +20,7 @@ export const compressImage = async (uri, quality = 0.7) => {
   }
 };
 
-export const imageToBase64 = async (uri) => {
+const imageToBase64 = async (uri) => {
   try {
     const base64 = await FileSystem.readAsStringAsync(uri, {
       encoding: FileSystem.EncodingType.Base64,
@@ -38,7 +38,7 @@ const generateUniqueFileName = (prefix = 'image') => {
   return `${prefix}_${timestamp}_${random}.jpg`;
 };
 
-export const uploadAvatar = async (userId, imageUri) => {
+const uploadAvatar = async (userId, imageUri) => {
   try {
     const compressedUri = await compressImage(imageUri, 0.6);
     const base64 = await imageToBase64(compressedUri);
@@ -75,7 +75,7 @@ export const uploadAvatar = async (userId, imageUri) => {
   }
 };
 
-export const uploadPetPhotos = async (userId, petId, imageUris) => {
+const uploadPetPhotos = async (userId, petId, imageUris) => {
   try {
     const uploadedPhotos = [];
     
@@ -117,7 +117,7 @@ export const uploadPetPhotos = async (userId, petId, imageUris) => {
   }
 };
 
-export const uploadReportPhotos = async (userId, reportId, imageUris) => {
+const uploadReportPhotos = async (userId, reportId, imageUris) => {
   try {
     const uploadedPhotos = [];
     
@@ -159,10 +159,12 @@ export const uploadReportPhotos = async (userId, reportId, imageUris) => {
   }
 };
 
-export default {
+const storageService = {
   compressImage,
   imageToBase64,
   uploadAvatar,
   uploadPetPhotos,
   uploadReportPhotos,
 };
+
+export { storageService };

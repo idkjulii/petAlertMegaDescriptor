@@ -27,7 +27,7 @@ const ExpoSecureStoreAdapter = {
   },
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: ExpoSecureStoreAdapter,
     autoRefreshToken: true,
@@ -36,7 +36,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-export const authService = {
+const authService = {
   signUp: async (email, password, fullName) => {
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -105,7 +105,7 @@ export const authService = {
   },
 };
 
-export const profileService = {
+const profileService = {
   getProfile: async (userId) => {
     try {
       const { data, error } = await supabase
@@ -154,7 +154,7 @@ export const profileService = {
   },
 };
 
-export const petService = {
+const petService = {
   getUserPets: async (userId) => {
     try {
       const { data, error } = await supabase
@@ -263,7 +263,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
-export const reportService = {
+const reportService = {
   createReport: async (reportData) => {
     try {
       const { data, error } = await supabase
@@ -443,7 +443,7 @@ export const reportService = {
   },
 };
 
-export const messageService = {
+const messageService = {
   getOrCreateConversation: async (reportId, participant1, participant2) => {
     try {
       const { data: existing, error: fetchError } = await supabase
@@ -527,4 +527,8 @@ export const messageService = {
       )
       .subscribe();
   },
+};
+
+export {
+    authService, messageService, petService, profileService, reportService, supabase
 };
