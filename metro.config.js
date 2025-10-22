@@ -24,6 +24,13 @@ config.transformer.minifierConfig = {
   },
 };
 
+// Configuración para evitar errores de InternalBytecode.js
+config.transformer.unstable_allowRequireContext = true;
+config.resolver.unstable_enableSymlinks = false;
+
+// Configuración para resolver problemas de caché
+config.resetCache = true;
+
 module.exports = config;
 
 

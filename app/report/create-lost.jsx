@@ -24,9 +24,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView from '../../src/components/Map/MapView';
 import { getCurrentLocation, reverseGeocode } from '../../src/services/location';
-import { uploadReportPhotos } from '../../src/services/storage';
+import { storageService } from '../../src/services/storage';
 import { reportService } from '../../src/services/supabase';
-import { analyzeImage } from '../../src/services/vision';
+import { visionService } from '../../src/services/vision';
 import { useAuthStore } from '../../src/stores/authStore';
 
 const SPECIES_OPTIONS = [
@@ -161,7 +161,7 @@ export default function CreateLostReportScreen() {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       try {
-        const labels = await analyzeImage(uri);
+        const labels = await visionService.analyzeImage(uri);
         console.log("Resultados IA:", labels);
         
         // Mostrar resultados en un alert
@@ -245,7 +245,7 @@ export default function CreateLostReportScreen() {
       // Subir fotos
       let photoUrls = [];
       if (photos.length > 0) {
-        const uploadResult = await uploadReportPhotos(user.id, Date.now().toString(), photos);
+        const uploadResult = await storageService.uploadReportPhotos(user.id, Date.now().toString(), photos);
         if (uploadResult.error) {
           throw new Error('Error subiendo fotos: ' + uploadResult.error.message);
         }

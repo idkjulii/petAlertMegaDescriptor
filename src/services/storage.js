@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from './supabase.js';
 
@@ -22,8 +22,9 @@ const compressImage = async (uri, quality = 0.7) => {
 
 const imageToBase64 = async (uri) => {
   try {
+    // Usar la API legacy de FileSystem de manera simple
     const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
+      encoding: 'base64',
     });
     return base64;
   } catch (error) {

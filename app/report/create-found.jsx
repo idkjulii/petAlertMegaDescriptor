@@ -24,7 +24,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView from '../../src/components/Map/MapView';
 import { getCurrentLocation, reverseGeocode } from '../../src/services/location';
-import { uploadReportPhotos } from '../../src/services/storage';
+import { storageService } from '../../src/services/storage';
 import { reportService } from '../../src/services/supabase';
 import { useAuthStore } from '../../src/stores/authStore';
 
@@ -223,7 +223,7 @@ export default function CreateFoundReportScreen() {
       // Subir fotos
       let photoUrls = [];
       if (photos.length > 0) {
-        const uploadResult = await uploadReportPhotos(user.id, Date.now().toString(), photos);
+        const uploadResult = await storageService.uploadReportPhotos(user.id, Date.now().toString(), photos);
         if (uploadResult.error) {
           throw new Error('Error subiendo fotos: ' + uploadResult.error.message);
         }
