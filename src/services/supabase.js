@@ -248,6 +248,47 @@ const petService = {
 };
 
 // Función auxiliar para calcular distancia entre dos puntos
+// Función para extraer coordenadas de diferentes formatos de location
+const extractCoordinatesFromLocation = (locationData) => {
+  if (!locationData) {
+    return null;
+  }
+  
+  // Formato PostGIS: "SRID=4326;POINT(lon lat)"
+  if (typeof locationData === 'string' && locationData.includes('POINT(')) {
+    try {
+      const coordsStr = locationData.split('POINT(')[1].split(')')[0];
+      const [longitude, latitude] = coordsStr.split(' ').map(parseFloat);
+      return { latitude, longitude };
+    } catch (error) {
+      console.warn('Error parsing PostGIS POINT:', error);
+      return null;
+    }
+  }
+  
+  // Formato GeoJSON: {"type":"Point","coordinates":[lon,lat]}
+  if (typeof locationData === 'object' && locationData.type === 'Point' && locationData.coordinates) {
+    try {
+      const [longitude, latitude] = locationData.coordinates;
+      return { latitude, longitude };
+    } catch (error) {
+      console.warn('Error parsing GeoJSON Point:', error);
+      return null;
+    }
+  }
+  
+  // Si ya tiene latitude y longitude directamente
+  if (typeof locationData === 'object' && locationData.latitude && locationData.longitude) {
+    return {
+      latitude: parseFloat(locationData.latitude),
+      longitude: parseFloat(locationData.longitude)
+    };
+  }
+  
+  console.warn('Formato de location no reconocido:', locationData);
+  return null;
+};
+
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3; // Radio de la Tierra en metros
   const φ1 = (lat1 * Math.PI) / 180;
@@ -345,29 +386,46 @@ const reportService = {
 
   getReportsSimple: async () => {
     try {
-      console.log('🔄 Obteniendo todos los reportes activos...');
+      console.log('🔄 Obteniendo todos los reportes activos directamente...');
+      
+      // Consultar directamente la tabla reports sin usar RPC
       const { data, error } = await supabase
-        .rpc('get_reports_with_coords');
+        .from('reports')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('❌ Error obteniendo reportes:', error);
         throw error;
       }
       
-      console.log(`✅ Obtenidos ${data?.length || 0} reportes activos`);
-      if (data && data.length > 0) {
+      // Procesar los reportes para extraer coordenadas
+      const processedReports = data?.map(report => {
+        const coords = extractCoordinatesFromLocation(report.location);
+        return {
+          ...report,
+          latitude: coords?.latitude,
+          longitude: coords?.longitude,
+          hasValidCoords: !!(coords?.latitude && coords?.longitude)
+        };
+      }) || [];
+      
+      console.log(`✅ Obtenidos ${processedReports.length} reportes activos`);
+      if (processedReports.length > 0) {
         console.log('📍 Primeras coordenadas:', {
-          id: data[0].id,
-          type: data[0].type,
-          pet_name: data[0].pet_name,
-          latitude: data[0].latitude,
-          longitude: data[0].longitude,
-          hasValidCoords: !!(data[0].latitude && data[0].longitude)
+          id: processedReports[0].id,
+          type: processedReports[0].type,
+          pet_name: processedReports[0].pet_name,
+          latitude: processedReports[0].latitude,
+          longitude: processedReports[0].longitude,
+          hasValidCoords: processedReports[0].hasValidCoords,
+          location: processedReports[0].location
         });
       } else {
         console.log('⚠️ No se encontraron reportes en la base de datos');
       }
-      return { data: data || [], error: null };
+      return { data: processedReports, error: null };
     } catch (error) {
       console.error('❌ Error en getReportsSimple:', error);
       return { data: null, error };
@@ -376,56 +434,46 @@ const reportService = {
 
   getNearbyReports: async (latitude, longitude, radiusMeters = 5000) => {
     try {
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc('nearby_reports', {
-          lat: latitude,
-          lng: longitude,
-          radius_meters: radiusMeters,
-        });
+      console.log(`🔍 Buscando reportes cercanos a ${latitude}, ${longitude} en radio de ${radiusMeters}m`);
       
-      if (rpcError) {
-        console.warn('⚠️ RPC nearby_reports falló, usando método alternativo:', rpcError.message);
-        const { data: allReports, error: allError } = await supabase
-          .rpc('get_reports_with_coords');
-        
-        if (allError) throw allError;
-        
-        const nearbyReports = allReports
-          .filter(report => {
-            if (!report.latitude || !report.longitude) return false;
-            
-            const distance = calculateDistance(
-              latitude, 
-              longitude, 
-              report.latitude, 
-              report.longitude
-            );
-            
-            report.distance_meters = distance;
-            return distance <= radiusMeters;
-          })
-          .sort((a, b) => a.distance_meters - b.distance_meters);
-        
-        console.log(`✅ Filtrados ${nearbyReports.length} reportes cercanos (método local)`);
-        return { data: nearbyReports, error: null };
+      // Consultar directamente la tabla reports
+      const { data, error } = await supabase
+        .from('reports')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ Error obteniendo reportes:', error);
+        throw error;
       }
       
-      const reportIds = rpcData.map(r => r.id);
-      const { data: fullReports, error: reportsError } = await supabase
-        .rpc('get_reports_with_coords');
+      // Procesar y filtrar reportes por distancia
+      const nearbyReports = data
+        ?.map(report => {
+          const coords = extractCoordinatesFromLocation(report.location);
+          if (!coords) return null;
+          
+          const distance = calculateDistance(
+            latitude,
+            longitude,
+            coords.latitude,
+            coords.longitude
+          );
+          
+          return {
+            ...report,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            distance_meters: distance,
+            hasValidCoords: true
+          };
+        })
+        .filter(report => report && report.distance_meters <= radiusMeters)
+        .sort((a, b) => a.distance_meters - b.distance_meters) || [];
       
-      if (reportsError) throw reportsError;
-      
-      const filtered = fullReports.filter(report => reportIds.includes(report.id));
-      const reportsWithDistance = filtered.map(report => {
-        const distanceData = rpcData.find(d => d.id === report.id);
-        return {
-          ...report,
-          distance_meters: distanceData?.distance_meters || 0,
-        };
-      });
-      
-      return { data: reportsWithDistance, error: null };
+      console.log(`✅ Encontrados ${nearbyReports.length} reportes cercanos`);
+      return { data: nearbyReports, error: null };
     } catch (error) {
       console.error('❌ Error en getNearbyReports:', error);
       return { data: null, error };
