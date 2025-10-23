@@ -152,6 +152,8 @@ const CustomMapView = ({
           pinColor="red"
           title="PRUEBA"
           description="Si ves esto, los marcadores funcionan"
+          titleStyle={{ color: 'white' }}
+          descriptionStyle={{ color: 'white' }}
         />
 
         {/* Marcadores de reportes - usando marcadores nativos simples */}
@@ -190,6 +192,8 @@ const CustomMapView = ({
               pinColor={isLost ? 'red' : 'green'}
               title={report.pet_name || (isLost ? 'Mascota Perdida' : 'Mascota Encontrada')}
               description={report.breed || report.species || 'Ver detalles'}
+              titleStyle={{ color: 'white' }}
+              descriptionStyle={{ color: 'white' }}
               onPress={() => {
                 if (onMarkerPress) {
                   onMarkerPress(report);
@@ -206,6 +210,7 @@ const CustomMapView = ({
             coordinate={selectedLocation}
             pinColor="#007AFF"
             title="Ubicación seleccionada"
+            titleStyle={{ color: 'white' }}
           />
         )}
       </MapView>

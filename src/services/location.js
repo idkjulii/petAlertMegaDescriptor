@@ -59,11 +59,11 @@ const getCurrentLocation = async () => {
   }
 };
 
-const reverseGeocode = async (latitude, longitude) => {
+const reverseGeocode = async (latitude, longitude, retryCount = 0) => {
   try {
-    // Crear un timeout personalizado para evitar el DEADLINE_EXCEEDED
+    // Crear un timeout personalizado más generoso
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout en geocodificación inversa')), 3000);
+      setTimeout(() => reject(new Error('Timeout en geocodificación inversa')), 8000); // Aumentado a 8 segundos
     });
 
     const geocodePromise = Location.reverseGeocodeAsync({
@@ -92,7 +92,14 @@ const reverseGeocode = async (latitude, longitude) => {
   } catch (error) {
     console.error('Error en geocodificación inversa:', error);
     
-    // Si es un error de timeout o DEADLINE_EXCEEDED, usar coordenadas como fallback
+    // Si es un error de timeout o DEADLINE_EXCEEDED, intentar retry una vez
+    if ((error.message?.includes('Timeout') || error.message?.includes('DEADLINE_EXCEEDED')) && retryCount < 1) {
+      console.log('Reintentando geocodificación inversa...');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo antes del retry
+      return reverseGeocode(latitude, longitude, retryCount + 1);
+    }
+    
+    // Si falla después del retry o es otro tipo de error, usar coordenadas como fallback
     if (error.message?.includes('Timeout') || error.message?.includes('DEADLINE_EXCEEDED')) {
       return {
         address: `Ubicación: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,

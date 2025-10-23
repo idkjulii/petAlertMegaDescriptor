@@ -53,7 +53,8 @@ export default {
       ],
       "expo-secure-store",
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      "expo-av"
     ],
     extra: {
       // Variables de entorno para Supabase

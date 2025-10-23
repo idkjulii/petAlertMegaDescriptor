@@ -16,6 +16,7 @@ import {
     Card,
     Chip,
     HelperText,
+    IconButton,
     Paragraph,
     Text,
     TextInput,
@@ -300,6 +301,21 @@ export default function CreateLostReportScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <View style={styles.headerContainer}>
+        <IconButton
+          icon="arrow-left"
+          size={24}
+          onPress={() => router.back()}
+          style={styles.backButton}
+        />
+        <View style={styles.headerContent}>
+          <Title style={styles.title}>🔍 Reportar Mascota Perdida</Title>
+          <Paragraph style={styles.subtitle}>
+            Completa la información para ayudar a encontrar a tu mascota
+          </Paragraph>
+        </View>
+      </View>
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
@@ -309,12 +325,6 @@ export default function CreateLostReportScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <Title style={styles.title}>🔍 Reportar Mascota Perdida</Title>
-            <Paragraph style={styles.subtitle}>
-              Completa la información para ayudar a encontrar a tu mascota
-            </Paragraph>
-          </View>
 
           <Card style={styles.card}>
             <Card.Content style={styles.cardContent}>
@@ -561,22 +571,39 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-  header: {
+  headerContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    minHeight: 80,
+  },
+  backButton: {
+    marginRight: 8,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#FF3B30',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
+    lineHeight: 24,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 18,
+    paddingHorizontal: 8,
   },
   card: {
     marginBottom: 16,

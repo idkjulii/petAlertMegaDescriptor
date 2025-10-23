@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
     StyleSheet,
@@ -29,6 +29,16 @@ export default function HomeScreen() {
   useEffect(() => {
     initializeScreen();
   }, []);
+
+  // Refrescar reportes cuando la pantalla recibe foco
+  useFocusEffect(
+    useCallback(() => {
+      // Solo refrescar si ya se inicializó la pantalla
+      if (reports.length >= 0) {
+        loadReportsNearby();
+      }
+    }, [])
+  );
 
   const initializeScreen = async () => {
     try {

@@ -1,6 +1,7 @@
 import { Slot, useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import SplashScreen from '../components/SplashScreen';
 import { useAuthStore } from '../src/stores/authStore';
 
 export default function RootLayout() {
@@ -8,6 +9,11 @@ export default function RootLayout() {
   const segments = useSegments();
   const { user, session, initialize, initialized } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -61,6 +67,11 @@ export default function RootLayout() {
     }
   }, [user, session, initialized, segments, router, isLoading]);
 
+  // Mostrar splash screen primero
+  if (showSplash) {
+    return <SplashScreen onFinish={handleSplashFinish} />;
+  }
+
   // Mostrar loading mientras se inicializa la autenticación
   if (!initialized || isLoading) {
     return (
@@ -79,7 +90,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF', // Blanco puro para consistencia con el splash screen
   },
 });
 

@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     borderRadius: 16,
     maxHeight: height * 0.75,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000000',
     marginRight: 8,
   },
   statusChip: {
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
   petName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000000',
     marginBottom: 8,
   },
   speciesContainer: {
@@ -249,7 +250,8 @@ const styles = StyleSheet.create({
   },
   speciesText: {
     fontSize: 14,
-    color: '#666',
+    color: '#333333',
+    fontWeight: '500',
   },
   divider: {
     marginVertical: 12,
@@ -257,7 +259,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#555',
+    color: '#333333',
   },
   locationInfo: {
     marginTop: 12,
@@ -267,8 +269,9 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 13,
-    color: '#555',
+    color: '#333333',
     marginBottom: 4,
+    fontWeight: '500',
   },
   distanceText: {
     fontSize: 12,
@@ -290,13 +293,14 @@ const styles = StyleSheet.create({
   },
   reporterName: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
+    fontWeight: '600',
+    color: '#000000',
   },
   reportDate: {
     fontSize: 12,
-    color: '#666',
+    color: '#333333',
     marginTop: 2,
+    fontWeight: '500',
   },
   actions: {
     paddingHorizontal: 16,

@@ -14,6 +14,7 @@ import {
     Button,
     Card,
     Chip,
+    IconButton,
     Paragraph,
     Text,
     Title
@@ -401,13 +402,22 @@ export default function AISearchScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
+      <View style={styles.headerContainer}>
+        <IconButton
+          icon="arrow-left"
+          size={24}
+          onPress={() => router.back()}
+          style={styles.backButton}
+        />
+        <View style={styles.headerContent}>
           <Title style={styles.title}>🔍 Búsqueda con IA</Title>
           <Paragraph style={styles.subtitle}>
             Sube una foto de la mascota para buscar coincidencias usando inteligencia artificial
           </Paragraph>
         </View>
+      </View>
+      
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
 
         {/* Selector de tipo de búsqueda */}
         <Card style={styles.card}>
@@ -568,22 +578,39 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-  header: {
+  headerContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    minHeight: 80,
+  },
+  backButton: {
+    marginRight: 8,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#007AFF',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
+    lineHeight: 24,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 18,
+    paddingHorizontal: 8,
   },
   card: {
     marginBottom: 16,
