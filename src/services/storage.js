@@ -56,7 +56,7 @@ const uploadAvatar = async (userId, imageUri) => {
       .from('avatars')
       .upload(filePath, arrayBuffer, {
         contentType: 'image/jpeg',
-        upsert: true,
+        upsert: false,
       });
     
     if (error) throw error;
