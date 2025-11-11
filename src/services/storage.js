@@ -160,12 +160,48 @@ const uploadReportPhotos = async (userId, reportId, imageUris) => {
   }
 };
 
+const uploadMessageImage = async (userId, conversationId, imageUri) => {
+  try {
+    const compressedUri = await compressImage(imageUri, 0.7);
+    const base64 = await imageToBase64(compressedUri);
+    const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+    const fileName = generateUniqueFileName('message');
+    const filePath = `${userId}/${conversationId}/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('message-attachments')
+      .upload(filePath, arrayBuffer, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data: publicData } = supabase.storage
+      .from('message-attachments')
+      .getPublicUrl(filePath);
+
+    return {
+      url: publicData.publicUrl,
+      path: data.path,
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error subiendo imagen de mensaje:', error);
+    return { url: null, path: null, error };
+  }
+};
+
 const storageService = {
   compressImage,
   imageToBase64,
   uploadAvatar,
   uploadPetPhotos,
   uploadReportPhotos,
+  uploadMessageImage,
 };
 
 export { storageService };

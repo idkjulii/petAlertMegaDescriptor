@@ -139,6 +139,11 @@ export const useConversationMessages = (conversationId) => {
     }
   }, [conversationId, messages, userId, markingRead]);
 
+  const markAsReadRef = useRef(markAsRead);
+  useEffect(() => {
+    markAsReadRef.current = markAsRead;
+  }, [markAsRead]);
+
   const sendMessage = useCallback(
     async (content, { imageUrl = null } = {}) => {
       if (!conversationId || !userId) {
@@ -196,6 +201,9 @@ export const useConversationMessages = (conversationId) => {
     channelRef.current = messageService.subscribeToMessages(conversationId, {
       onInsert: (message) => {
         updateMessagesState([message]);
+        if (message.sender_id !== userId) {
+          markAsReadRef.current?.();
+        }
       },
       onUpdate: (message) => {
         updateMessagesState([message]);
@@ -208,7 +216,7 @@ export const useConversationMessages = (conversationId) => {
         channelRef.current = null;
       }
     };
-  }, [conversationId, loadMessages, updateMessagesState]);
+  }, [conversationId, loadMessages, updateMessagesState, userId]);
 
   // Marcar como leídos cuando llegan mensajes nuevos
   useEffect(() => {

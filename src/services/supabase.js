@@ -343,7 +343,14 @@ const rpcCall = async (functionName, params = {}) => {
     const { data, error } = await supabase.rpc(functionName, params);
     
     if (error) {
-      console.error(`❌ Error en RPC ${functionName}:`, error);
+      console.error(
+        `❌ Error en RPC ${functionName}:`,
+        error,
+        'params:',
+        JSON.stringify(params),
+        'session:',
+        session?.user?.id || '(sin sesión)'
+      );
       // Si el error es por falta de API key, intentar con fetch directo
       if (error.message && error.message.includes('API key')) {
         console.warn('⚠️ Intentando llamada RPC directa con fetch...');
@@ -909,6 +916,6 @@ const notificationService = {
 };
 
 export {
-    authService, messageService, notificationService, petService, profileService, reportService, supabase
+  authService, messageService, notificationService, petService, profileService, reportService, supabase
 };
 

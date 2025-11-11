@@ -1,28 +1,32 @@
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Avatar,
-  Button,
-  IconButton,
-  Text,
-  TextInput,
-  useTheme,
-} from 'react-native-paper';
-import {
-  BackHandler,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    BackHandler,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { Image } from 'expo-image';
+import {
+    ActivityIndicator,
+    Avatar,
+    Button,
+    IconButton,
+    Text,
+    TextInput,
+    useTheme,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useConversationMessages } from '../../src/hooks/useConversationMessages';
+import { storageService } from '../../src/services/storage';
 import { messageService } from '../../src/services/supabase';
 import { useAuthStore } from '../../src/stores/authStore';
-import { useConversationMessages } from '../../src/hooks/useConversationMessages';
+import { eventBus } from '../../src/utils/eventBus';
 
 const formatDateTime = (timestamp) => {
   if (!timestamp) return '';
@@ -57,6 +61,7 @@ export default function ConversationScreen() {
   const [loadingConversation, setLoadingConversation] = useState(true);
   const [conversationError, setConversationError] = useState(null);
   const [messageInput, setMessageInput] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const isCurrentUserReporter = conversation?.report_reporter_id === userId;
 
   const {
@@ -128,6 +133,10 @@ export default function ConversationScreen() {
         return undefined;
       }
 
+      if (conversationId) {
+        eventBus.emit('conversation:read', conversationId);
+      }
+
       const onBackPress = () => {
         router.replace('/messages');
         return true;
@@ -175,6 +184,90 @@ export default function ConversationScreen() {
       setMessageInput('');
     }
   }, [messageInput, sendMessage]);
+
+  const handleUploadImage = useCallback(
+    async (uri) => {
+      if (!uri || uploadingImage || !userId || !conversationId) return;
+
+      try {
+      setUploadingImage(true);
+
+        const { url, error } = await storageService.uploadMessageImage(
+          userId,
+          conversationId,
+          uri
+        );
+
+        if (error || !url) {
+          throw error || new Error('No se pudo subir la imagen.');
+        }
+
+        const { success } = await sendMessage('', { imageUrl: url });
+        if (!success) {
+          Alert.alert('Ups', 'No se pudo enviar la imagen. Intenta nuevamente.');
+        }
+      } catch (error) {
+        console.error('Error enviando imagen:', error);
+        Alert.alert('Ups', 'No se pudo enviar la imagen. Intenta nuevamente.');
+      } finally {
+        setUploadingImage(false);
+      }
+    },
+    [conversationId, sendMessage, uploadingImage, userId]
+  );
+
+  const pickImageFromLibrary = useCallback(async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permisos requeridos', 'Necesitamos acceso a tus fotos para enviar imágenes.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets?.length) {
+      await handleUploadImage(result.assets[0].uri);
+    }
+  }, [handleUploadImage]);
+
+  const takePhotoWithCamera = useCallback(async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permisos requeridos', 'Necesitamos acceso a la cámara para tomar fotos.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets?.length) {
+      await handleUploadImage(result.assets[0].uri);
+    }
+  }, [handleUploadImage]);
+
+  const handlePickImage = useCallback(() => {
+    if (!userId || uploadingImage) {
+      return;
+    }
+
+    Alert.alert('Enviar imagen', 'Selecciona una opción', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Galería',
+        onPress: pickImageFromLibrary,
+      },
+      {
+        text: 'Cámara',
+        onPress: takePhotoWithCamera,
+      },
+    ]);
+  }, [pickImageFromLibrary, takePhotoWithCamera, uploadingImage, userId]);
 
   const renderMessage = ({ item }) => {
     const isOwnMessage = item.sender_id === userId;
@@ -362,31 +455,46 @@ export default function ConversationScreen() {
         />
 
         <View style={styles.composerContainer}>
-          <TextInput
-            mode="outlined"
-            placeholder="Escribe tu mensaje"
-            value={messageInput}
-            onChangeText={setMessageInput}
-            multiline
-            style={styles.textInput}
-            right={
-              <TextInput.Icon
-                icon="send"
-                disabled={!canSendMessage}
-                onPress={handleSend}
-                forceTextInputFocus={false}
-              />
-            }
-          />
+          <View style={styles.composerRow}>
+            <IconButton
+              icon={uploadingImage ? 'progress-upload' : 'paperclip'}
+              size={26}
+              onPress={handlePickImage}
+              disabled={uploadingImage || sending}
+              style={styles.attachmentButton}
+            />
+            <TextInput
+              mode="outlined"
+              placeholder="Escribe tu mensaje"
+              value={messageInput}
+              onChangeText={setMessageInput}
+              multiline
+              style={styles.textInput}
+              right={
+                <TextInput.Icon
+                  icon="send"
+                  disabled={!canSendMessage || sending}
+                  onPress={handleSend}
+                  forceTextInputFocus={false}
+                />
+              }
+            />
+          </View>
           <Button
             mode="contained"
             onPress={handleSend}
-            disabled={!canSendMessage}
+            disabled={!canSendMessage || sending}
             loading={sending}
             style={styles.sendButton}
           >
             Enviar
           </Button>
+          {uploadingImage ? (
+            <View style={styles.uploadHint}>
+              <ActivityIndicator size="small" color={theme.colors.primary} />
+              <Text style={styles.uploadHintText}>Enviando imagen...</Text>
+            </View>
+          ) : null}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -628,12 +736,31 @@ const styles = StyleSheet.create({
     borderTopColor: '#E5E7EB',
     borderTopWidth: StyleSheet.hairlineWidth,
   },
+  composerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  attachmentButton: {
+    margin: 0,
+    marginRight: 4,
+  },
   textInput: {
+    flex: 1,
     maxHeight: 120,
     backgroundColor: '#FFFFFF',
   },
   sendButton: {
     marginTop: 12,
+  },
+  uploadHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  uploadHintText: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginLeft: 8,
   },
 });
 
