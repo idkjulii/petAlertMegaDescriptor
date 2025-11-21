@@ -7,3 +7,10 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+
+# Archivos de credenciales y secretos
+backend/google-vision-key.json
+*.json.key
+*-key.json
+.env
+backend/.env
